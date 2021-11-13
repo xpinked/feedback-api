@@ -33,13 +33,32 @@ const error = (req, res) => res.status(404).json({ message: 'Not Found' });
 
 ///////FEEDBACKS HANDLERS
 //Getters
-const getAllFeedbacks = (req, res) => {
+const getFeedbacks = (req, res) => {
   // const items = feedbacks.map(feedback => {
   //   const { id, title, category, upvotes, status, description } = feedback;
   //   return { id, title, category, upvotes, status, description };
   // });
+  const m = +req.query.page;
+  //prettier-ignore
+  const k = req.query.count && typeof +req.query.count === 'number' ? +req.query.count: feedbacks.length;
+  // const k = req.query.count && typeof +req.query.count === 'number' ? +req.query.count: 6;
 
-  res.status(200).json(feedbacks);
+  const pages = Math.ceil(feedbacks.length / k);
+  if (req.query.page && typeof m === 'number' && m > 0 && m <= pages) {
+    res.status(200).send(
+      feedbacks
+        .slice()
+        .reverse()
+        .slice((m - 1) * k, m * k)
+    );
+    return;
+  }
+  console.log('hello');
+  res.status(200).json(feedbacks.slice().reverse().slice(0, k));
+};
+
+const getFeedbacksAmount = (req, res) => {
+  res.status(200).json(feedbacks.length);
 };
 
 const getAllComments = (req, res) => {
@@ -123,12 +142,15 @@ app.get('/currentuser', (req, res) => {
   res.status(200).send(currentuser);
 });
 
+app.get('/feedbacks/amount', getFeedbacksAmount);
+
 app.get('/feedbacks/stats', getAllFeedbacksStats);
 
 app.get('/feedbacks/:id/comments', getCommentsOfFeedbackByID);
 
 app.get('/feedbacks/comments', getAllComments);
-app.route('/feedbacks').get(getAllFeedbacks).post(addFeedback);
+
+app.route('/feedbacks').get(getFeedbacks).post(addFeedback);
 
 app.route('/feedbacks/:id').get(getFeedbackByID).delete(deleteFeedbackByID);
 

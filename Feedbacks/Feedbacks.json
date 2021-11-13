@@ -305,11 +305,11 @@
   },
   {
     "id": 13,
-    "title": "Is atlas from paladins black?",
+    "title": "Is atlas from paladins a Main tank?",
     "category": "bug",
     "upvotes": 69,
     "status": "in-progress",
-    "description": "Artrix and Elad asked",
+    "description": "I'll suggest that he might be Off tank",
     "comments": [
       {
         "id": 16,
@@ -333,5 +333,13 @@
         ]
       }
     ]
+  },
+  {
+    "id": 14,
+    "title": "Test 14",
+    "category": "test",
+    "upvotes": 999,
+    "status": "test",
+    "description": "Testing my beautiful feedback"
   }
 ]
