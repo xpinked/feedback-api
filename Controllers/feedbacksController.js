@@ -1,5 +1,6 @@
 const fs = require('fs');
 const FeedBack = require('../Models/feedbackModel');
+
 // const { DBController } = require('./databaseController');
 
 const feedbacks = JSON.parse(
@@ -15,6 +16,7 @@ const getFeedbacks = async (req, res) => {
     //prettier-ignore
     const k = req.query.count && typeof +req.query.count === 'number' ? +req.query.count: feedbacks.length;
     const pages = Math.ceil(feedbacks.length / k);
+    // await sleep(1);
     if (req.query.page && typeof m === 'number' && m > 0 && m <= pages) {
       res.status(200).json({
         status: 'success',
@@ -26,6 +28,7 @@ const getFeedbacks = async (req, res) => {
       });
       return;
     }
+
     res.status(200).json({
       status: 'success',
       amount: +feedbacks.length,

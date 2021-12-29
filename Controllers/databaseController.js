@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const AppError = require('../utils/appError');
 
 const DB = process.env.MDB_DATABASE.replace(
   '<MDB_USERNAME>',
@@ -15,7 +16,7 @@ exports.DBController = async function () {
       useUnifiedTopology: true,
     });
     msg = 'connected.. waiting for progress';
-    return await con;
+    return con;
   } catch {
     msg = 'didnt work';
   } finally {

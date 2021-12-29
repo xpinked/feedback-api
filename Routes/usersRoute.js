@@ -16,6 +16,8 @@ usersRoute
   .delete('/:id', () => {});
 
 usersRoute
+  .get('/checkauth', authController.checkAuth)
+  .get('/logout', authController.logout)
   .post('/signup', authController.signup)
   .post('/login', authController.login);
 

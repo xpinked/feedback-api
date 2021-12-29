@@ -48,6 +48,25 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   createSendToken(newUser, 201, res);
 });
+exports.checkAuth = catchAsync(async (req, res, next) => {
+  const token = req.cookies?.jwt;
+
+  if (!token || token === 'loggedout') return next(new AppError());
+
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+  // 3) Check if user still exists
+  const currentUser = await User.findById(decoded.id).select('-__v');
+  if (!currentUser) {
+    return next(
+      new AppError(
+        'The user belonging to this token does no longer exist.',
+        401
+      )
+    );
+  }
+  res.status(200).json({ status: 'success', data: { user: currentUser } });
+});
 
 exports.login = catchAsync(async (req, res, next) => {
   const { username, password } = req.body;
@@ -56,16 +75,25 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!username || !password) {
     return next(new AppError('Please provide username and password!', 400));
   }
-  // 2) Check if user exists && password is correct
+  // // 2) Check if user exists && password is correct
   const user = await User.findOne({ username }).select('+password');
 
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Incorrect username or password', 401));
   }
 
-  // 3) If everything ok, send token to client
+  // // 3) If everything ok, send token to client
   createSendToken(user, 200, res);
 });
+
+exports.logout = async (req, res, next) => {
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now() + 10 * 1000),
+  });
+  res
+    .status(200)
+    .json({ status: 'success', message: 'Logged Out Successfuly' });
+};
 
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Getting token and check of it's there
@@ -98,11 +126,11 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
 
   // 4) Check if user changed password after the token was issued
-  if (currentUser.changedPasswordAfter(decoded.iat)) {
-    return next(
-      new AppError('User recently changed password! Please log in again.', 401)
-    );
-  }
+  // if (currentUser.changedPasswordAfter(decoded.iat)) {
+  //   return next(
+  //     new AppError('User recently changed password! Please log in again.', 401)
+  //   );
+  // }
 
   // GRANT ACCESS TO PROTECTED ROUTE
   req.user = currentUser;
